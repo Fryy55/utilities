@@ -1,18 +1,20 @@
 #include <iostream>
 #include <set>
 #include <conio.h>
+#include <string>
 
 // Constant declarations
-unsigned int DEPTH_LO = 8; // 8 is minimal depth, 7 doesn't reach 1 iteration
-unsigned int DEPTH_LOR = 17; // 17 is minimal depth, 16 doesn't reach 1 iteration
+const unsigned int DEPTH_LO = 8; // 8 is minimal depth, 7 doesn't reach 1 iteration
+const unsigned int DEPTH_LOR = 17; // 17 is minimal depth, 16 doesn't reach 1 iteration
 const unsigned int BASE = 5;
 const unsigned int NTABLE_LO = 521;
-const unsigned int NTABLE_LOR = 19687;
+const unsigned int NTABLE_LOR = 1993;
 
 // Custom structures declarations
 struct State {
     std::string str;
     unsigned int layer = 4294967295;
+    int last_step = 80085;
     State* next = nullptr;
 };
 
@@ -22,8 +24,149 @@ std::set <std::string> set_lor;
 State* hash_table_lo[NTABLE_LO];
 State* hash_table_lor[NTABLE_LOR];
 
+// Flipping functions
+char flip_lo(char chr) { // No dependencies
+    switch (chr) {
+    case 'O':
+        return 'X';
+    case 'X':
+        return 'O';
+    }
+
+    return 'X'; // Unreachable, I want parser to stfu
+}
+
+char flip_lor(char chr) { // No dependencies
+    switch (chr) {
+    case 'O':
+        return 'R';
+    case 'R':
+        return 'G';
+    case 'G':
+        return 'O';
+    }
+
+    return 'R'; // Unreachable, I want parser to stfu
+}
+
+std::string flipper_lo(std::string str, int selection) { // 1 dependency: flip_lo
+    switch (selection) {
+    case 1:
+        str[0] = flip_lo(str[0]);
+        str[1] = flip_lo(str[1]);
+        str[3] = flip_lo(str[3]);
+        break;
+    case 2:
+        str[0] = flip_lo(str[0]);
+        str[1] = flip_lo(str[1]);
+        str[2] = flip_lo(str[2]);
+        str[4] = flip_lo(str[4]);
+        break;
+    case 3:
+        str[1] = flip_lo(str[1]);
+        str[2] = flip_lo(str[2]);
+        str[5] = flip_lo(str[5]);
+        break;
+    case 4:
+        str[0] = flip_lo(str[0]);
+        str[3] = flip_lo(str[3]);
+        str[6] = flip_lo(str[6]);
+        str[4] = flip_lo(str[4]);
+        break;
+    case 5:
+        str[1] = flip_lo(str[1]);
+        str[5] = flip_lo(str[5]);
+        str[3] = flip_lo(str[3]);
+        str[7] = flip_lo(str[7]);
+        str[4] = flip_lo(str[4]);
+        break;
+    case 6:
+        str[5] = flip_lo(str[5]);
+        str[8] = flip_lo(str[8]);
+        str[2] = flip_lo(str[2]);
+        str[4] = flip_lo(str[4]);
+        break;
+    case 7:
+        str[3] = flip_lo(str[3]);
+        str[6] = flip_lo(str[6]);
+        str[7] = flip_lo(str[7]);
+        break;
+    case 8:
+        str[6] = flip_lo(str[6]);
+        str[7] = flip_lo(str[7]);
+        str[8] = flip_lo(str[8]);
+        str[4] = flip_lo(str[4]);
+        break;
+    case 9:
+        str[5] = flip_lo(str[5]);
+        str[7] = flip_lo(str[7]);
+        str[8] = flip_lo(str[8]);
+        break;
+    }
+
+    return str;
+}
+
+std::string flipper_lor(std::string str, int selection) { // 1 dependency: flip_lor
+    switch (selection) {
+    case 1:
+        str[0] = flip_lor(str[0]);
+        str[1] = flip_lor(str[1]);
+        str[3] = flip_lor(str[3]);
+        break;
+    case 2:
+        str[0] = flip_lor(str[0]);
+        str[1] = flip_lor(str[1]);
+        str[2] = flip_lor(str[2]);
+        str[4] = flip_lor(str[4]);
+        break;
+    case 3:
+        str[1] = flip_lor(str[1]);
+        str[2] = flip_lor(str[2]);
+        str[5] = flip_lor(str[5]);
+        break;
+    case 4:
+        str[0] = flip_lor(str[0]);
+        str[3] = flip_lor(str[3]);
+        str[6] = flip_lor(str[6]);
+        str[4] = flip_lor(str[4]);
+        break;
+    case 5:
+        str[1] = flip_lor(str[1]);
+        str[5] = flip_lor(str[5]);
+        str[3] = flip_lor(str[3]);
+        str[7] = flip_lor(str[7]);
+        str[4] = flip_lor(str[4]);
+        break;
+    case 6:
+        str[5] = flip_lor(str[5]);
+        str[8] = flip_lor(str[8]);
+        str[2] = flip_lor(str[2]);
+        str[4] = flip_lor(str[4]);
+        break;
+    case 7:
+        str[3] = flip_lor(str[3]);
+        str[6] = flip_lor(str[6]);
+        str[7] = flip_lor(str[7]);
+        break;
+    case 8:
+        str[6] = flip_lor(str[6]);
+        str[7] = flip_lor(str[7]);
+        str[8] = flip_lor(str[8]);
+        str[4] = flip_lor(str[4]);
+        break;
+    case 9:
+        str[5] = flip_lor(str[5]);
+        str[7] = flip_lor(str[7]);
+        str[8] = flip_lor(str[8]);
+        break;
+    }
+
+    return str;
+}
+
 // Hash functions
-unsigned int hash_lo(std::string str) {
+unsigned int hash_lo(std::string str) { // No dependencies
     unsigned int sum = 0;
     unsigned int factor = 1;
     for (char i : str) {
@@ -33,7 +176,7 @@ unsigned int hash_lo(std::string str) {
     return sum % NTABLE_LO;
 }
 
-unsigned int hash_lor(std::string str) {
+unsigned int hash_lor(std::string str) { // No dependencies
     unsigned int sum = 0;
     unsigned int factor = 1;
     for (char i : str) {
@@ -43,13 +186,9 @@ unsigned int hash_lor(std::string str) {
     return sum % NTABLE_LOR;
 }
 
-State* hash_check_lo(std::string str) {
+State* hash_check_lo(std::string str) { // 1 dependency: hash_lo
     int hashed_str = hash_lo(str);
-    for (State* i = hash_table_lo[hashed_str]; i != nullptr; i = i -> next) {
-        if (i -> str == str) {
-            return i;
-        }
-    }
+    for (State* i = hash_table_lo[hashed_str]; i != nullptr; i = i -> next) if (i -> str == str) return i;
 
     State* old_st = hash_table_lo[hashed_str];
     State* new_st = new State;
@@ -59,13 +198,9 @@ State* hash_check_lo(std::string str) {
     return new_st;
 }
 
-State* hash_check_lor(std::string str) {
+State* hash_check_lor(std::string str) { // 1 dependency: hash_lor
     int hashed_str = hash_lor(str);
-    for (State* i = hash_table_lor[hashed_str]; i != nullptr; i = i -> next) {
-        if (i -> str == str) {
-            return i;
-        }
-    }
+    for (State* i = hash_table_lor[hashed_str]; i != nullptr; i = i -> next) if (i -> str == str) return i;
 
     State* old_st = hash_table_lor[hashed_str];
     State* new_st = new State;
@@ -76,238 +211,174 @@ State* hash_check_lor(std::string str) {
 }
 
 // Build functions
-char flip_lo(char chr) {
-    switch (chr) {
-    case '0':
-        return '1';
-    case '1':
-        return '0';
-    default:
-        printf("BWAAAAAAAAAAAAAAAAAAA IMPOSSIBRUUUU\n");
-        exit(0);
-    }
-}
+void build_lo(std::string str, int lim, int last_step) { // 2 dependencies: hash_check_lo; flipper_lo | Recursive
+    set_lo.insert(str);
+    if (lim > DEPTH_LO) return;
 
-char flip_lor(char chr) {
-    switch (chr) {
-    case '0':
-        return '1';
-    case '1':
-        return '2';
-    case '2':
-        return '0';
-    default:
-        printf("BWAAAAAAAAAAAAAAAAAAA IMPOSSIBRUUUU\n");
-        exit(0);
-    }
-}
-
-void build_lo(std::string a, int lim) {
-    set_lo.insert(a);
-    if (lim > DEPTH_LO) {
-        return;
-    }
-    State* cur_state = hash_check_lo(a);
-    if (cur_state -> layer <= lim) {
-        return;
-    }
+    // WORKS BY SHEER PRAYERS \/\/\/\/\/\/ DON'T TOUCH IF UNNECESSARY
+    State* cur_state = hash_check_lo(str);
+    if (cur_state -> layer <= lim) return;
     cur_state -> layer = lim;
+    cur_state -> last_step = last_step;
+    // WORKS BY SHEER PRAYERS /\/\/\/\/\/\ DON'T TOUCH IF UNNECESSARY
     
-    std::string a1 = a;
-    a1[0] = flip_lo(a1[0]);
-    a1[1] = flip_lo(a1[1]);
-    a1[3] = flip_lo(a1[3]);
-    build_lo(a1, lim + 1);
-    if (lim == 0) {
-        printf("Stage 1/9 passed\n");
-    }
+    build_lo(flipper_lo(str, 1), lim + 1, 1);
+    if (lim == 0) printf("Stage 1/9 passed\n");
 
-    std::string a2 = a;
-    a2[0] = flip_lo(a2[0]);
-    a2[1] = flip_lo(a2[1]);
-    a2[2] = flip_lo(a2[2]);
-    a2[4] = flip_lo(a2[4]);
-    build_lo(a2, lim + 1);
-    if (lim == 0) {
-        printf("Stage 2/9 passed\n");
-    }
+    build_lo(flipper_lo(str, 2), lim + 1, 2);
+    if (lim == 0) printf("Stage 2/9 passed\n");
 
-    std::string a3 = a;
-    a3[1] = flip_lo(a3[1]);
-    a3[2] = flip_lo(a3[2]);
-    a3[5] = flip_lo(a3[5]);
-    build_lo(a3, lim + 1);
-    if (lim == 0) {
-        printf("Stage 3/9 passed\n");
-    }
+    build_lo(flipper_lo(str, 3), lim + 1, 3);
+    if (lim == 0) printf("Stage 3/9 passed\n");
 
-    std::string a4 = a;
-    a4[0] = flip_lo(a4[0]);
-    a4[3] = flip_lo(a4[3]);
-    a4[6] = flip_lo(a4[6]);
-    a4[4] = flip_lo(a4[4]);
-    build_lo(a4, lim + 1);
-    if (lim == 0) {
-        printf("Stage 4/9 passed\n");
-    }
+    build_lo(flipper_lo(str, 4), lim + 1, 4);
+    if (lim == 0) printf("Stage 4/9 passed\n");
 
-    std::string a5 = a;
-    a5[1] = flip_lo(a5[1]);
-    a5[5] = flip_lo(a5[5]);
-    a5[3] = flip_lo(a5[3]);
-    a5[7] = flip_lo(a5[7]);
-    a5[4] = flip_lo(a5[4]);
-    build_lo(a5, lim + 1);
-    if (lim == 0) {
-        printf("Stage 5/9 passed\n");
-    }
+    build_lo(flipper_lo(str, 5), lim + 1, 5);
+    if (lim == 0) printf("Stage 5/9 passed\n");
 
-    std::string a6 = a;
-    a6[5] = flip_lo(a6[5]);
-    a6[8] = flip_lo(a6[8]);
-    a6[2] = flip_lo(a6[2]);
-    a6[4] = flip_lo(a6[4]);
-    build_lo(a6, lim + 1);
-    if (lim == 0) {
-        printf("Stage 6/9 passed\n");
-    }
+    build_lo(flipper_lo(str, 6), lim + 1, 6);
+    if (lim == 0) printf("Stage 6/9 passed\n");
 
-    std::string a7 = a;
-    a7[3] = flip_lo(a7[3]);
-    a7[6] = flip_lo(a7[6]);
-    a7[7] = flip_lo(a7[7]);
-    build_lo(a7, lim + 1);
-    if (lim == 0) {
-        printf("Stage 7/9 passed\n");
-    }
+    build_lo(flipper_lo(str, 7), lim + 1, 7);
+    if (lim == 0) printf("Stage 7/9 passed\n");
 
-    std::string a8 = a;
-    a8[6] = flip_lo(a8[6]);
-    a8[7] = flip_lo(a8[7]);
-    a8[8] = flip_lo(a8[8]);
-    a8[4] = flip_lo(a8[4]);
-    build_lo(a8, lim + 1);
-    if (lim == 0) {
-        printf("Stage 8/9 passed\n");
-    }
+    build_lo(flipper_lo(str, 8), lim + 1, 8);
+    if (lim == 0) printf("Stage 8/9 passed\n");
 
-    std::string a9 = a;
-    a9[5] = flip_lo(a9[5]);
-    a9[7] = flip_lo(a9[7]);
-    a9[8] = flip_lo(a9[8]);
-    build_lo(a9, lim + 1);
-    if (lim == 0) {
-        printf("Stage 9/9 passed\n");
-    }
+    build_lo(flipper_lo(str, 9), lim + 1, 9);
+    if (lim == 0) printf("Stage 9/9 passed\n");
     
     return;
 }
 
-void build_lor(std::string a, int lim) {
-    set_lor.insert(a);
-    if (lim > DEPTH_LOR) {
-        return;
-    }
-    State* cur_state = hash_check_lor(a);
-    if (cur_state -> layer <= lim) {
-        return;
-    }
+void build_lor(std::string str, int lim, int last_step) { // 2 dependencies: hash_check_lor; flipper_lor | Recursive
+    set_lor.insert(str);
+    if (lim > DEPTH_LOR) return;
+
+    // WORKS BY SHEER PRAYERS \/\/\/\/\/\/ DON'T TOUCH IF UNNECESSARY
+    State* cur_state = hash_check_lor(str);
+    if (cur_state -> layer <= lim) return;
     cur_state -> layer = lim;
+    cur_state -> last_step = last_step;
+    // WORKS BY SHEER PRAYERS /\/\/\/\/\/\ DON'T TOUCH IF UNNECESSARY
     
-    std::string a1 = a;
-    a1[0] = flip_lor(a1[0]);
-    a1[1] = flip_lor(a1[1]);
-    a1[3] = flip_lor(a1[3]);
-    build_lor(a1, lim + 1);
-    if (lim == 0) {
-        printf("Stage 1/9 passed\n");
-    }
+    build_lor(flipper_lor(str, 1), lim + 1, 1);
+    if (lim == 0) printf("Stage 1/9 passed\n");
 
-    std::string a2 = a;
-    a2[0] = flip_lor(a2[0]);
-    a2[1] = flip_lor(a2[1]);
-    a2[2] = flip_lor(a2[2]);
-    a2[4] = flip_lor(a2[4]);
-    build_lor(a2, lim + 1);
-    if (lim == 0) {
-        printf("Stage 2/9 passed\n");
-    }
+    build_lor(flipper_lor(str, 2), lim + 1, 2);
+    if (lim == 0) printf("Stage 2/9 passed\n");
 
-    std::string a3 = a;
-    a3[1] = flip_lor(a3[1]);
-    a3[2] = flip_lor(a3[2]);
-    a3[5] = flip_lor(a3[5]);
-    build_lor(a3, lim + 1);
-    if (lim == 0) {
-        printf("Stage 3/9 passed\n");
-    }
+    build_lor(flipper_lor(str, 3), lim + 1, 3);
+    if (lim == 0) printf("Stage 3/9 passed\n");
 
-    std::string a4 = a;
-    a4[0] = flip_lor(a4[0]);
-    a4[3] = flip_lor(a4[3]);
-    a4[6] = flip_lor(a4[6]);
-    a4[4] = flip_lor(a4[4]);
-    build_lor(a4, lim + 1);
-    if (lim == 0) {
-        printf("Stage 4/9 passed\n");
-    }
+    build_lor(flipper_lor(str, 4), lim + 1, 4);
+    if (lim == 0) printf("Stage 4/9 passed\n");
 
-    std::string a5 = a;
-    a5[1] = flip_lor(a5[1]);
-    a5[5] = flip_lor(a5[5]);
-    a5[3] = flip_lor(a5[3]);
-    a5[7] = flip_lor(a5[7]);
-    a5[4] = flip_lor(a5[4]);
-    build_lor(a5, lim + 1);
-    if (lim == 0) {
-        printf("Stage 5/9 passed\n");
-    }
+    build_lor(flipper_lor(str, 5), lim + 1, 5);
+    if (lim == 0) printf("Stage 5/9 passed\n");
 
-    std::string a6 = a;
-    a6[5] = flip_lor(a6[5]);
-    a6[8] = flip_lor(a6[8]);
-    a6[2] = flip_lor(a6[2]);
-    a6[4] = flip_lor(a6[4]);
-    build_lor(a6, lim + 1);
-    if (lim == 0) {
-        printf("Stage 6/9 passed\n");
-    }
+    build_lor(flipper_lor(str, 6), lim + 1, 6);
+    if (lim == 0) printf("Stage 6/9 passed\n");
 
-    std::string a7 = a;
-    a7[3] = flip_lor(a7[3]);
-    a7[6] = flip_lor(a7[6]);
-    a7[7] = flip_lor(a7[7]);
-    build_lor(a7, lim + 1);
-    if (lim == 0) {
-        printf("Stage 7/9 passed\n");
-    }
+    build_lor(flipper_lor(str, 7), lim + 1, 7);
+    if (lim == 0) printf("Stage 7/9 passed\n");
 
-    std::string a8 = a;
-    a8[6] = flip_lor(a8[6]);
-    a8[7] = flip_lor(a8[7]);
-    a8[8] = flip_lor(a8[8]);
-    a8[4] = flip_lor(a8[4]);
-    build_lor(a8, lim + 1);
-    if (lim == 0) {
-        printf("Stage 8/9 passed\n");
-    }
+    build_lor(flipper_lor(str, 8), lim + 1, 8);
+    if (lim == 0) printf("Stage 8/9 passed\n");
 
-    std::string a9 = a;
-    a9[5] = flip_lor(a9[5]);
-    a9[7] = flip_lor(a9[7]);
-    a9[8] = flip_lor(a9[8]);
-    build_lor(a9, lim + 1);
-    if (lim == 0) {
-        printf("Stage 9/9 passed\n");
-    }
+    build_lor(flipper_lor(str, 9), lim + 1, 9);
+    if (lim == 0) printf("Stage 9/9 passed\n");
     
     return;
 }
+
+// Extra functions
+void scout(std::string str) { // No dependencies
+    for (int i = 0; i < 9; i++) {
+        printf("%c", str[i]);
+        if (i == 2 || i == 5 || i == 8) printf("\n");
+    }
+    printf("\n");
+
+    return;
+}
+
+void step_to_text(int step) { // 1 dependency: scout
+    switch (step) {
+    case 1:
+        scout("x........");
+        break;
+    case 2:
+        scout(".x.......");
+        break;
+    case 3:
+        scout("..x......");
+        break;
+    case 4:
+        scout("...x.....");
+        break;
+    case 5:
+        scout("....x....");
+        break;
+    case 6:
+        scout(".....x...");
+        break;
+    case 7:
+        scout("......x..");
+        break;
+    case 8:
+        scout(".......x.");
+        break;
+    case 9:
+        scout("........x");
+        break;
+    default:
+        printf("FUCK YOU");
+        exit(0);
+    }
+
+    return;
+}
+
+// Search functions
+void search_lo() { // 3 dependencies - hash_check_lo; scout; flipper_lo
+    std::string row1, row2, row3, input = "";
+    printf("LO solver mode.\nInput 3 rows:\nRow 1 | ");
+    
+    std::cin >> row1;
+    printf("Row 2 | ");
+    std::cin >> row2;
+    printf("Row 3 | ");
+    std::cin >> row3;
+    input.append(row1).append(row2).append(row3);
+    if (!set_lo.contains(input)) {
+        printf("Wrong input format. See README.md in the repository for help.\n\n");
+        return;
+    }
+
+    State* cur_state = hash_check_lo(input);
+    int total_steps = cur_state -> layer;
+    printf("\nFound a solution in %u step(s).\n\nSteps to solve:\nInitial position:\n", total_steps);
+
+    for (cur_state; cur_state -> layer != 0; cur_state = hash_check_lo(flipper_lo(cur_state -> str, cur_state -> last_step))) {
+        scout(cur_state -> str);
+        printf("Step %d/%d:\n", total_steps - cur_state -> layer + 1, total_steps);
+        step_to_text(cur_state -> last_step);
+        printf("Result:\n");
+    }
+    scout(cur_state -> str);
+    
+    printf("Solved!\n\n");
+    return;
+}
+
+// Main
 
 int main() {
     std::fill(hash_table_lo, hash_table_lo + NTABLE_LO, nullptr);
     printf("LO initialized...\n");
-    build_lo("000000000", 0);
+    build_lo("OOOOOOOOO", 0, 10);
     if (set_lo.size() != 512) {
         printf("Unexpected error occurred: expected 512 iterations; found %d. Please report this issue via the repository's Issues tab.\n\nPress any key to close.", set_lo.size());
         getch();
@@ -315,17 +386,63 @@ int main() {
     }
     printf("LO hash table successfully built.\n");
 
-    std::fill(hash_table_lo, hash_table_lo + NTABLE_LO, nullptr);
+    std::fill(hash_table_lor, hash_table_lor + NTABLE_LO, nullptr);
     printf("\nLOR initialized...\n");
-    build_lor("000000000", 0);
+    build_lor("OOOOOOOOO", 0, 10);
     if (set_lor.size() != 19683) {
         printf("Unexpected error occurred: expected 19683 iterations; found %d. Please report this issue via the repository's Issues tab.\n\nPress any key to close.", set_lor.size());
         getch();
         exit(0);
     }
-    printf("LOR hash table successfully built.\n");
+    printf("LOR hash table successfully built.\n\n");
     
+    // :wtf: lo hash table output??? :car:
+    /* for (int i = 0; i < NTABLE_LO; i++) {
+        if (hash_table_lo[i] != nullptr) {
+            printf("Hash: %d\n", i);
+            for (State* j = hash_table_lo[i]; j != nullptr; j = j -> next) {
+                printf("String:");
+                std::cout << j -> str;
+                printf(";Layer:%u\n", j -> layer);
+            }
+        } else {
+            printf("h");
+        }
+    } */
+    // :wtf: lo hash table output??? :car:
+
+    // :wtf: lor hash table output??? :car:
+    /* for (int i = 0; i < NTABLE_LOR; i++) {
+        if (hash_table_lor[i] != nullptr) {
+            printf("Hash: %d\n", i);
+            for (State* j = hash_table_lor[i]; j != nullptr; j = j -> next) {
+                printf("String:");
+                std::cout << j -> str;
+                printf(";Layer:%u\n", j -> layer);
+            }
+        } else {
+            printf("h");
+        }
+    } */
+    // :wtf: lor hash table output??? :car:
+
+    // Main input loop
+    bool breaker = false;
+    while (!breaker) {
+        printf("Input a command (lo, lor, exit)\n>>> ");
+        std::string input;
+        std::cin >> input;
+        if (input == "exit") {
+            breaker = true;
+        } else if (input == "lo") {
+            search_lo();
+        } else if (input == "lor") {
+            //search_lor();
+        }
+    }
+
     // i'm not memory leaking y'alls asses dw
+    printf("\nDeallocating used memory...\n");
     for (State* i : hash_table_lo) {
         while (i != nullptr) {
             State* next_state = i -> next;
@@ -340,5 +457,7 @@ int main() {
             i = next_state;
         }
     }
+    printf("Memory successfully deallocated.\n\nPress any key to close.");
+    getch();
     return 0;
 }
