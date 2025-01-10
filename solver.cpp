@@ -38,7 +38,20 @@ char flip_lo(char chr) { // No dependencies
     return 'X'; // Unreachable; I want the parser to stfu
 }
 
-char flip_lor(char chr) { // No dependencies
+char flip_lor_build(char chr) { // No dependencies
+    switch (chr) {
+    case 'O':
+        return 'G';
+    case 'G':
+        return 'R';
+    case 'R':
+        return 'O';
+    }
+
+    return 'R'; // Unreachable; I want the parser to stfu
+}
+
+char flip_lor_search(char chr) { // No dependencies
     switch (chr) {
     case 'O':
         return 'R';
@@ -109,58 +122,116 @@ std::string flipper_lo(std::string str, int selection) { // 1 dependency: flip_l
     return str;
 }
 
-std::string flipper_lor(std::string str, int selection) { // 1 dependency: flip_lor
+std::string flipper_lor_build(std::string str, int selection) { // 1 dependency: flip_lor_build
     switch (selection) {
     case 1:
-        str[0] = flip_lor(str[0]);
-        str[1] = flip_lor(str[1]);
-        str[3] = flip_lor(str[3]);
+        str[0] = flip_lor_build(str[0]);
+        str[1] = flip_lor_build(str[1]);
+        str[3] = flip_lor_build(str[3]);
         break;
     case 2:
-        str[0] = flip_lor(str[0]);
-        str[1] = flip_lor(str[1]);
-        str[2] = flip_lor(str[2]);
-        str[4] = flip_lor(str[4]);
+        str[0] = flip_lor_build(str[0]);
+        str[1] = flip_lor_build(str[1]);
+        str[2] = flip_lor_build(str[2]);
+        str[4] = flip_lor_build(str[4]);
         break;
     case 3:
-        str[1] = flip_lor(str[1]);
-        str[2] = flip_lor(str[2]);
-        str[5] = flip_lor(str[5]);
+        str[1] = flip_lor_build(str[1]);
+        str[2] = flip_lor_build(str[2]);
+        str[5] = flip_lor_build(str[5]);
         break;
     case 4:
-        str[0] = flip_lor(str[0]);
-        str[3] = flip_lor(str[3]);
-        str[6] = flip_lor(str[6]);
-        str[4] = flip_lor(str[4]);
+        str[0] = flip_lor_build(str[0]);
+        str[3] = flip_lor_build(str[3]);
+        str[6] = flip_lor_build(str[6]);
+        str[4] = flip_lor_build(str[4]);
         break;
     case 5:
-        str[1] = flip_lor(str[1]);
-        str[5] = flip_lor(str[5]);
-        str[3] = flip_lor(str[3]);
-        str[7] = flip_lor(str[7]);
-        str[4] = flip_lor(str[4]);
+        str[1] = flip_lor_build(str[1]);
+        str[5] = flip_lor_build(str[5]);
+        str[3] = flip_lor_build(str[3]);
+        str[7] = flip_lor_build(str[7]);
+        str[4] = flip_lor_build(str[4]);
         break;
     case 6:
-        str[5] = flip_lor(str[5]);
-        str[8] = flip_lor(str[8]);
-        str[2] = flip_lor(str[2]);
-        str[4] = flip_lor(str[4]);
+        str[5] = flip_lor_build(str[5]);
+        str[8] = flip_lor_build(str[8]);
+        str[2] = flip_lor_build(str[2]);
+        str[4] = flip_lor_build(str[4]);
         break;
     case 7:
-        str[3] = flip_lor(str[3]);
-        str[6] = flip_lor(str[6]);
-        str[7] = flip_lor(str[7]);
+        str[3] = flip_lor_build(str[3]);
+        str[6] = flip_lor_build(str[6]);
+        str[7] = flip_lor_build(str[7]);
         break;
     case 8:
-        str[6] = flip_lor(str[6]);
-        str[7] = flip_lor(str[7]);
-        str[8] = flip_lor(str[8]);
-        str[4] = flip_lor(str[4]);
+        str[6] = flip_lor_build(str[6]);
+        str[7] = flip_lor_build(str[7]);
+        str[8] = flip_lor_build(str[8]);
+        str[4] = flip_lor_build(str[4]);
         break;
     case 9:
-        str[5] = flip_lor(str[5]);
-        str[7] = flip_lor(str[7]);
-        str[8] = flip_lor(str[8]);
+        str[5] = flip_lor_build(str[5]);
+        str[7] = flip_lor_build(str[7]);
+        str[8] = flip_lor_build(str[8]);
+        break;
+    }
+
+    return str;
+}
+
+std::string flipper_lor_search(std::string str, int selection) { // 1 dependency: flip_lor_search
+    switch (selection) {
+    case 1:
+        str[0] = flip_lor_search(str[0]);
+        str[1] = flip_lor_search(str[1]);
+        str[3] = flip_lor_search(str[3]);
+        break;
+    case 2:
+        str[0] = flip_lor_search(str[0]);
+        str[1] = flip_lor_search(str[1]);
+        str[2] = flip_lor_search(str[2]);
+        str[4] = flip_lor_search(str[4]);
+        break;
+    case 3:
+        str[1] = flip_lor_search(str[1]);
+        str[2] = flip_lor_search(str[2]);
+        str[5] = flip_lor_search(str[5]);
+        break;
+    case 4:
+        str[0] = flip_lor_search(str[0]);
+        str[3] = flip_lor_search(str[3]);
+        str[6] = flip_lor_search(str[6]);
+        str[4] = flip_lor_search(str[4]);
+        break;
+    case 5:
+        str[1] = flip_lor_search(str[1]);
+        str[5] = flip_lor_search(str[5]);
+        str[3] = flip_lor_search(str[3]);
+        str[7] = flip_lor_search(str[7]);
+        str[4] = flip_lor_search(str[4]);
+        break;
+    case 6:
+        str[5] = flip_lor_search(str[5]);
+        str[8] = flip_lor_search(str[8]);
+        str[2] = flip_lor_search(str[2]);
+        str[4] = flip_lor_search(str[4]);
+        break;
+    case 7:
+        str[3] = flip_lor_search(str[3]);
+        str[6] = flip_lor_search(str[6]);
+        str[7] = flip_lor_search(str[7]);
+        break;
+    case 8:
+        str[6] = flip_lor_search(str[6]);
+        str[7] = flip_lor_search(str[7]);
+        str[8] = flip_lor_search(str[8]);
+        str[4] = flip_lor_search(str[4]);
+        break;
+    case 9:
+        str[5] = flip_lor_search(str[5]);
+        str[7] = flip_lor_search(str[7]);
+        str[8] = flip_lor_search(str[8]);
         break;
     }
 
@@ -252,7 +323,7 @@ void build_lo(std::string str, int lim, int last_step) { // 2 dependencies: hash
     return;
 }
 
-void build_lor(std::string str, int lim, int last_step) { // 2 dependencies: hash_check_lor; flipper_lor | Recursive
+void build_lor(std::string str, int lim, int last_step) { // 2 dependencies: hash_check_lor; flipper_lor_build | Recursive
     set_lor.insert(str);
     if (lim > DEPTH_LOR) return;
 
@@ -261,31 +332,31 @@ void build_lor(std::string str, int lim, int last_step) { // 2 dependencies: has
     cur_state -> layer = lim;
     cur_state -> last_step = last_step;
     
-    build_lor(flipper_lor(str, 1), lim + 1, 1);
+    build_lor(flipper_lor_build(str, 1), lim + 1, 1);
     if (lim == 0) printf("Stage 1/9 passed\n");
 
-    build_lor(flipper_lor(str, 2), lim + 1, 2);
+    build_lor(flipper_lor_build(str, 2), lim + 1, 2);
     if (lim == 0) printf("Stage 2/9 passed\n");
 
-    build_lor(flipper_lor(str, 3), lim + 1, 3);
+    build_lor(flipper_lor_build(str, 3), lim + 1, 3);
     if (lim == 0) printf("Stage 3/9 passed\n");
 
-    build_lor(flipper_lor(str, 4), lim + 1, 4);
+    build_lor(flipper_lor_build(str, 4), lim + 1, 4);
     if (lim == 0) printf("Stage 4/9 passed\n");
 
-    build_lor(flipper_lor(str, 5), lim + 1, 5);
+    build_lor(flipper_lor_build(str, 5), lim + 1, 5);
     if (lim == 0) printf("Stage 5/9 passed\n");
 
-    build_lor(flipper_lor(str, 6), lim + 1, 6);
+    build_lor(flipper_lor_build(str, 6), lim + 1, 6);
     if (lim == 0) printf("Stage 6/9 passed\n");
 
-    build_lor(flipper_lor(str, 7), lim + 1, 7);
+    build_lor(flipper_lor_build(str, 7), lim + 1, 7);
     if (lim == 0) printf("Stage 7/9 passed\n");
 
-    build_lor(flipper_lor(str, 8), lim + 1, 8);
+    build_lor(flipper_lor_build(str, 8), lim + 1, 8);
     if (lim == 0) printf("Stage 8/9 passed\n");
 
-    build_lor(flipper_lor(str, 9), lim + 1, 9);
+    build_lor(flipper_lor_build(str, 9), lim + 1, 9);
     if (lim == 0) printf("Stage 9/9 passed\n");
     
     return;
@@ -378,7 +449,7 @@ void search_lo() { // 3 dependencies - hash_check_lo; flipper_lo; scout
     return;
 }
 
-void search_lor() { // 3 dependencies - hash_check_lor; flipper_lor; scout
+void search_lor() { // 3 dependencies - hash_check_lor; flipper_lor_search; scout
     std::string row1, row2, row3, input = "";
     printf("LOR solver mode.\nInput 3 rows:\nRow 1 | ");
     std::cin >> row1;
@@ -397,7 +468,7 @@ void search_lor() { // 3 dependencies - hash_check_lor; flipper_lor; scout
     printf("\nFound a solution in %u step(s).\n\nSteps to solve:\nInitial position:\n", total_steps);
     getch(); // Void a newline
 
-    for (cur_state; cur_state -> layer != 0; cur_state = hash_check_lor(flipper_lor(cur_state -> str, cur_state -> last_step))) {
+    for (cur_state; cur_state -> layer != 0; cur_state = hash_check_lor(flipper_lor_search(cur_state -> str, cur_state -> last_step))) {
         scout(cur_state -> str);
         printf("Press ENTER to proceed to the next step.\n\n");
         getch();
