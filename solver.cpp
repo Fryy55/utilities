@@ -7,7 +7,7 @@ const unsigned int DEPTH_LO = 8; // 8 is minimal depth, 7 doesn't reach 1 iterat
 const unsigned int DEPTH_LOR = 17; // 17 is minimal depth, 16 doesn't reach 1 iteration
 const unsigned int BASE = 5;
 const unsigned int NTABLE_LO = 521;
-const unsigned int NTABLE_LOR = 1993;
+const unsigned int NTABLE_LOR = 19687;
 
 // Custom structures declarations
 struct State {
@@ -23,6 +23,9 @@ std::set <std::string> set_lor;
 State* hash_table_lo[NTABLE_LO];
 State* hash_table_lor[NTABLE_LOR];
 
+// Global variables declarations
+bool step_skip = false;
+
 // Flipping functions
 char flip_lo(char chr) { // No dependencies
     switch (chr) {
@@ -32,7 +35,7 @@ char flip_lo(char chr) { // No dependencies
         return 'O';
     }
 
-    return 'X'; // Unreachable, I want parser to stfu
+    return 'X'; // Unreachable; I want the parser to stfu
 }
 
 char flip_lor(char chr) { // No dependencies
@@ -45,7 +48,7 @@ char flip_lor(char chr) { // No dependencies
         return 'O';
     }
 
-    return 'R'; // Unreachable, I want parser to stfu
+    return 'R'; // Unreachable; I want the parser to stfu
 }
 
 std::string flipper_lo(std::string str, int selection) { // 1 dependency: flip_lo
@@ -214,12 +217,10 @@ void build_lo(std::string str, int lim, int last_step) { // 2 dependencies: hash
     set_lo.insert(str);
     if (lim > DEPTH_LO) return;
 
-    // WORKS BY SHEER PRAYERS \/\/\/\/\/\/ DON'T TOUCH IF UNNECESSARY
     State* cur_state = hash_check_lo(str);
     if (cur_state -> layer <= lim) return;
     cur_state -> layer = lim;
     cur_state -> last_step = last_step;
-    // WORKS BY SHEER PRAYERS /\/\/\/\/\/\ DON'T TOUCH IF UNNECESSARY
     
     build_lo(flipper_lo(str, 1), lim + 1, 1);
     if (lim == 0) printf("Stage 1/9 passed\n");
@@ -255,12 +256,10 @@ void build_lor(std::string str, int lim, int last_step) { // 2 dependencies: has
     set_lor.insert(str);
     if (lim > DEPTH_LOR) return;
 
-    // WORKS BY SHEER PRAYERS \/\/\/\/\/\/ DON'T TOUCH IF UNNECESSARY
     State* cur_state = hash_check_lor(str);
     if (cur_state -> layer <= lim) return;
     cur_state -> layer = lim;
     cur_state -> last_step = last_step;
-    // WORKS BY SHEER PRAYERS /\/\/\/\/\/\ DON'T TOUCH IF UNNECESSARY
     
     build_lor(flipper_lor(str, 1), lim + 1, 1);
     if (lim == 0) printf("Stage 1/9 passed\n");
@@ -379,27 +378,29 @@ void search_lo() { // 3 dependencies - hash_check_lo; flipper_lo; scout
     return;
 }
 
-void search_lor() { // 3 dependencies - hash_check_lo; scout; flipper_lo
+void search_lor() { // 3 dependencies - hash_check_lor; flipper_lor; scout
     std::string row1, row2, row3, input = "";
-    printf("LO solver mode.\nInput 3 rows:\nRow 1 | ");
-    
+    printf("LOR solver mode.\nInput 3 rows:\nRow 1 | ");
     std::cin >> row1;
     printf("Row 2 | ");
     std::cin >> row2;
     printf("Row 3 | ");
     std::cin >> row3;
     input.append(row1).append(row2).append(row3);
-    if (!set_lo.contains(input)) {
+    if (!set_lor.contains(input)) {
         printf("Wrong input format. See README.md in the repository for help.\n\n");
         return;
     }
 
-    State* cur_state = hash_check_lo(input);
+    State* cur_state = hash_check_lor(input);
     int total_steps = cur_state -> layer;
     printf("\nFound a solution in %u step(s).\n\nSteps to solve:\nInitial position:\n", total_steps);
+    getch(); // Void a newline
 
-    for (cur_state; cur_state -> layer != 0; cur_state = hash_check_lo(flipper_lo(cur_state -> str, cur_state -> last_step))) {
+    for (cur_state; cur_state -> layer != 0; cur_state = hash_check_lor(flipper_lor(cur_state -> str, cur_state -> last_step))) {
         scout(cur_state -> str);
+        printf("Press ENTER to proceed to the next step.\n\n");
+        getch();
         printf("Step %d/%d:\n", total_steps - cur_state -> layer + 1, total_steps);
         step_to_text(cur_state -> last_step);
         printf("Result:\n");
@@ -417,7 +418,7 @@ int main() {
     printf("LO initialized...\n");
     build_lo("OOOOOOOOO", 0, 10);
     if (set_lo.size() != 512) {
-        printf("Unexpected error occurred: expected 512 iterations; found %d. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", set_lo.size());
+        printf("Unexpected error occurred: expected 512 iterations; found %u. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", set_lo.size());
         getch(); // Void a newline
         getch();
         exit(0);
@@ -428,7 +429,7 @@ int main() {
     printf("\nLOR initialized...\n");
     build_lor("OOOOOOOOO", 0, 10);
     if (set_lor.size() != 19683) {
-        printf("Unexpected error occurred: expected 19683 iterations; found %d. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", set_lor.size());
+        printf("Unexpected error occurred: expected 19683 iterations; found %u. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", set_lor.size());
         getch(); // Void a newline
         getch();
         exit(0);
@@ -444,10 +445,8 @@ int main() {
                 std::cout << j -> str;
                 printf(";Layer:%u\n", j -> layer);
             }
-        } else {
-            printf("h");
         }
-    } */
+     } */
     // :wtf: lo hash table output??? :car:
 
     // :wtf: lor hash table output??? :car:
@@ -459,8 +458,6 @@ int main() {
                 std::cout << j -> str;
                 printf(";Layer:%u\n", j -> layer);
             }
-        } else {
-            printf("h");
         }
     } */
     // :wtf: lor hash table output??? :car:
@@ -479,8 +476,6 @@ int main() {
             search_lor();
         } else if (input == "config") {
             //config();
-        } else {
-            printf(">>> ");
         }
     }
 
