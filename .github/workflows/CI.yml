@@ -14,5 +14,4 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build solver.exe
-      run: g++ -c -Wall -g solver.cpp -std=gnu++23
-           g++ -g -o solver.exe solver.o -std=gnu++23
+      run: g++ -g -o solver.exe solver.cpp -std=gnu++23
