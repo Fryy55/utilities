@@ -418,7 +418,7 @@ int main() {
     printf("LO initialized...\n");
     build_lo("OOOOOOOOO", 0, 10);
     if (set_lo.size() != 512) {
-        printf("Unexpected error occurred: expected 512 iterations; found %u. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", set_lo.size());
+        printf("Unexpected error occurred: expected 512 iterations; found %lu. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", set_lo.size());
         getch(); // Void a newline
         getch();
         exit(0);
@@ -429,7 +429,7 @@ int main() {
     printf("\nLOR initialized...\n");
     build_lor("OOOOOOOOO", 0, 10);
     if (set_lor.size() != 19683) {
-        printf("Unexpected error occurred: expected 19683 iterations; found %u. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", set_lor.size());
+        printf("Unexpected error occurred: expected 19683 iterations; found %lu. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", set_lor.size());
         getch(); // Void a newline
         getch();
         exit(0);
