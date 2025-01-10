@@ -1,6 +1,5 @@
 #include <iostream>
 #include <set>
-#include <conio.h>
 #include <string>
 
 // Constant declarations
@@ -341,8 +340,46 @@ void step_to_text(int step) { // 1 dependency: scout
     return;
 }
 
+void getch() { // No dependencies
+    while (std::getchar() != 10) {}
+    return;
+}
+
 // Search functions
-void search_lo() { // 3 dependencies - hash_check_lo; scout; flipper_lo
+void search_lo() { // 3 dependencies - hash_check_lo; flipper_lo; scout
+    std::string row1, row2, row3, input = "";
+    printf("LO solver mode.\nInput 3 rows:\nRow 1 | ");
+    std::cin >> row1;
+    printf("Row 2 | ");
+    std::cin >> row2;
+    printf("Row 3 | ");
+    std::cin >> row3;
+    input.append(row1).append(row2).append(row3);
+    if (!set_lo.contains(input)) {
+        printf("Wrong input format. See README.md in the repository for help.\n\n");
+        return;
+    }
+
+    State* cur_state = hash_check_lo(input);
+    int total_steps = cur_state -> layer;
+    printf("\nFound a solution in %u step(s).\n\nSteps to solve:\nInitial position:\n", total_steps);
+    getch(); // Void a newline
+
+    for (cur_state; cur_state -> layer != 0; cur_state = hash_check_lo(flipper_lo(cur_state -> str, cur_state -> last_step))) {
+        scout(cur_state -> str);
+        printf("Press ENTER to proceed to the next step.\n\n");
+        getch();
+        printf("Step %d/%d:\n", total_steps - cur_state -> layer + 1, total_steps);
+        step_to_text(cur_state -> last_step);
+        printf("Result:\n");
+    }
+    scout(cur_state -> str);
+    
+    printf("Solved!\n\n");
+    return;
+}
+
+void search_lor() { // 3 dependencies - hash_check_lo; scout; flipper_lo
     std::string row1, row2, row3, input = "";
     printf("LO solver mode.\nInput 3 rows:\nRow 1 | ");
     
@@ -380,7 +417,8 @@ int main() {
     printf("LO initialized...\n");
     build_lo("OOOOOOOOO", 0, 10);
     if (set_lo.size() != 512) {
-        printf("Unexpected error occurred: expected 512 iterations; found %d. Please report this issue via the repository's Issues tab.\n\nPress any key to close.", set_lo.size());
+        printf("Unexpected error occurred: expected 512 iterations; found %d. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", set_lo.size());
+        getch(); // Void a newline
         getch();
         exit(0);
     }
@@ -390,7 +428,8 @@ int main() {
     printf("\nLOR initialized...\n");
     build_lor("OOOOOOOOO", 0, 10);
     if (set_lor.size() != 19683) {
-        printf("Unexpected error occurred: expected 19683 iterations; found %d. Please report this issue via the repository's Issues tab.\n\nPress any key to close.", set_lor.size());
+        printf("Unexpected error occurred: expected 19683 iterations; found %d. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", set_lor.size());
+        getch(); // Void a newline
         getch();
         exit(0);
     }
@@ -429,7 +468,7 @@ int main() {
     // Main input loop
     bool breaker = false;
     while (!breaker) {
-        printf("Input a command (lo, lor, exit)\n>>> ");
+        printf("Input a command (lo, lor, config, exit)\n>>> ");
         std::string input;
         std::cin >> input;
         if (input == "exit") {
@@ -437,7 +476,11 @@ int main() {
         } else if (input == "lo") {
             search_lo();
         } else if (input == "lor") {
-            //search_lor();
+            search_lor();
+        } else if (input == "config") {
+            //config();
+        } else {
+            printf(">>> ");
         }
     }
 
@@ -457,7 +500,8 @@ int main() {
             i = next_state;
         }
     }
-    printf("Memory successfully deallocated.\n\nPress any key to close.");
+    printf("Memory successfully deallocated.\n\nPress ENTER to close.");
+    getch(); // Void a newline
     getch();
     return 0;
 }
