@@ -33,7 +33,7 @@ bool skip;
 bool only_moves;
 bool table;
 
-std::string last_input = "";
+std::string last_input = "...";
 
 // Flipping functions
 char flip_lo(char chr) { // No dependencies
@@ -356,6 +356,7 @@ std::string input_next() { // 1 dependency: parse | Recursive
         std::string raw_input;
         std::getline(std::cin, raw_input);
         parse(raw_input);
+        if (parsed_input_deq.empty()) return "";
         return input_next();
     }
     last_input = next;
@@ -493,7 +494,7 @@ void search_parse(std::string &str) { // No dependencies
     case 'r':
         str[i] = 'R';
         break;
-    case 'G':
+    case 'g':
         str[i] = 'G';
         break;
     }
