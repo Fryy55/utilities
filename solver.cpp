@@ -1,6 +1,8 @@
 #include <iostream>
-#include <set>
+#include <fstream>
 #include <string>
+#include <set>
+#include <deque>
 
 // Constant declarations
 const unsigned int DEPTH_LO = 8; // 8 is minimal depth, 7 doesn't reach 1 iteration
@@ -22,9 +24,16 @@ std::set <std::string> set_lo;
 std::set <std::string> set_lor;
 State* hash_table_lo[NTABLE_LO];
 State* hash_table_lor[NTABLE_LOR];
+std::deque <std::string> parsed_input_deq;
 
 // Global variables declarations
-bool step_skip = false;
+bool yes_cfg = true;
+
+bool skip;
+bool only_moves;
+bool table;
+
+std::string last_input = "";
 
 // Flipping functions
 char flip_lo(char chr) { // No dependencies
@@ -293,33 +302,13 @@ void build_lo(std::string str, int lim, int last_step) { // 2 dependencies: hash
     cur_state -> layer = lim;
     cur_state -> last_step = last_step;
     
-    build_lo(flipper_lo(str, 1), lim + 1, 1);
-    if (lim == 0) printf("Stage 1/9 passed\n");
-
-    build_lo(flipper_lo(str, 2), lim + 1, 2);
-    if (lim == 0) printf("Stage 2/9 passed\n");
-
-    build_lo(flipper_lo(str, 3), lim + 1, 3);
-    if (lim == 0) printf("Stage 3/9 passed\n");
-
-    build_lo(flipper_lo(str, 4), lim + 1, 4);
-    if (lim == 0) printf("Stage 4/9 passed\n");
-
-    build_lo(flipper_lo(str, 5), lim + 1, 5);
-    if (lim == 0) printf("Stage 5/9 passed\n");
-
-    build_lo(flipper_lo(str, 6), lim + 1, 6);
-    if (lim == 0) printf("Stage 6/9 passed\n");
-
-    build_lo(flipper_lo(str, 7), lim + 1, 7);
-    if (lim == 0) printf("Stage 7/9 passed\n");
-
-    build_lo(flipper_lo(str, 8), lim + 1, 8);
-    if (lim == 0) printf("Stage 8/9 passed\n");
-
-    build_lo(flipper_lo(str, 9), lim + 1, 9);
-    if (lim == 0) printf("Stage 9/9 passed\n");
+    if (lim == 0) printf("Stage ");
+    for (int i = 1; i <= 9; i++) {
+        build_lo(flipper_lo(str, i), lim + 1, i);
+        if (lim == 0) printf("%d/9 ", i);
+    }
     
+    if (lim == 0) printf("\n");
     return;
 }
 
@@ -332,37 +321,47 @@ void build_lor(std::string str, int lim, int last_step) { // 2 dependencies: has
     cur_state -> layer = lim;
     cur_state -> last_step = last_step;
     
-    build_lor(flipper_lor_build(str, 1), lim + 1, 1);
-    if (lim == 0) printf("Stage 1/9 passed\n");
-
-    build_lor(flipper_lor_build(str, 2), lim + 1, 2);
-    if (lim == 0) printf("Stage 2/9 passed\n");
-
-    build_lor(flipper_lor_build(str, 3), lim + 1, 3);
-    if (lim == 0) printf("Stage 3/9 passed\n");
-
-    build_lor(flipper_lor_build(str, 4), lim + 1, 4);
-    if (lim == 0) printf("Stage 4/9 passed\n");
-
-    build_lor(flipper_lor_build(str, 5), lim + 1, 5);
-    if (lim == 0) printf("Stage 5/9 passed\n");
-
-    build_lor(flipper_lor_build(str, 6), lim + 1, 6);
-    if (lim == 0) printf("Stage 6/9 passed\n");
-
-    build_lor(flipper_lor_build(str, 7), lim + 1, 7);
-    if (lim == 0) printf("Stage 7/9 passed\n");
-
-    build_lor(flipper_lor_build(str, 8), lim + 1, 8);
-    if (lim == 0) printf("Stage 8/9 passed\n");
-
-    build_lor(flipper_lor_build(str, 9), lim + 1, 9);
-    if (lim == 0) printf("Stage 9/9 passed\n");
+    if (lim == 0) printf("Stage ");
+    for (int i = 1; i <= 9; i++) {
+        build_lor(flipper_lor_build(str, i), lim + 1, i);
+        if (lim == 0) printf("%d/9 ", i);
+    }
     
+    if (lim == 0) printf("\n");
     return;
 }
 
 // Extra functions
+void parse(std::string unparsed_input) { // No dependencies
+    parsed_input_deq.clear();
+    std::string temp_str = "";
+    unparsed_input += ' ';
+    for (char i : unparsed_input) {
+        if (i != ' ') temp_str += i;
+        else {
+            parsed_input_deq.push_back(temp_str);
+            temp_str = "";
+        }
+    }
+
+    return;
+}
+
+std::string input_next() { // 1 dependency: parse | Recursive
+    std::string next;
+    if (parsed_input_deq.size()) {
+        next = parsed_input_deq.front();
+        parsed_input_deq.pop_front();
+    } else {
+        std::string raw_input;
+        std::getline(std::cin, raw_input);
+        parse(raw_input);
+        return input_next();
+    }
+    last_input = next;
+    return next;
+}
+
 void scout(std::string str) { // No dependencies
     for (int i = 0; i < 9; i++) {
         printf("%c", str[i]);
@@ -415,68 +414,176 @@ void getch() { // No dependencies
     return;
 }
 
+void config_init() { // No dependencies
+    printf("Initializing config...\n");
+    std::fstream in("lo.cfg");
+    try {
+        if (!in) throw(1);
+    }
+    catch (...) {
+        printf("Can't locate lo.cfg\nMake sure the file exists in the right directory. (Tip: use config_reset from the main process to reset the file)\n\nPress ENTER to close.");
+        getch();
+        exit(0);
+    }
+    in >> skip >> only_moves >> table;
+    try {
+        if (!in) throw(1);
+    }
+    catch (...) {
+        printf("Can't access lo.cfg\nMake sure the file's contents are valid. (Tip: use config_reset from the main process to reset the file)\n\nPress ENTER to close.");
+        getch();
+        exit(0);
+    }
+    in.close();
+
+    printf("Config initialized.\n\n");
+    return;
+}
+
+void config() { // 1 dependency: input_next
+    std::cout << "\nAvailable settings:\nskip\nonly_moves\ntable\n\nOutput a state list:\nlist\n\n[" << last_input << "] >>> ";
+    std::string input = input_next();
+    bool* cur_setting;
+    try {
+        if (input == "skip") {
+            cur_setting = &skip;
+        } else if (input == "only_moves") {
+            cur_setting = &only_moves;
+        } else if (input == "table") {
+            cur_setting = &table;
+        } else if (input == "list") {
+            printf("\nList of all config states:\nskip - %s\nonly_moves - %s\ntable - %s\n\n", skip ? "true" : "false", only_moves ? "true" : "false", table ? "true" : "false");
+            return;
+        } else throw(input);
+    }
+    catch (std::string e) {
+        printf("\nUnknown setting: ");
+        std::cout << e;
+        printf("\nReturning...\n\n");
+        return;
+    }
+    printf("\nCurrent state for ");
+    std::cout << input << ": " << (*cur_setting ? "true" : "false") << ".\nInput new state (true/false)\n\n[" << last_input << "] >>> ";
+    //printf(": %s.\nInput new state (true/false)\n\n>>> ", *cur_setting ? "true" : "false");
+    std::string change = input_next();
+    try {
+        if (change == "true") {
+            *cur_setting = true;
+        } else if (change == "false") {
+            *cur_setting = false;
+        } else throw(change);
+    }
+    catch (std::string e) {
+        std::cout << '\n' << e;
+        printf(" is not a valid state.\nReturning...\n\n");
+        return;
+    }
+    
+    printf("\nSuccessfully updated config.\n\n");
+}
+
 // Search functions
-void search_lo() { // 3 dependencies - hash_check_lo; flipper_lo; scout
+void search_lo() { // 4 dependencies - input_next; hash_check_lo; flipper_lo; scout
     std::string row1, row2, row3, input = "";
     printf("LO solver mode.\nInput 3 rows:\nRow 1 | ");
-    std::cin >> row1;
+    row1 = input_next();
     printf("Row 2 | ");
-    std::cin >> row2;
+    row2 = input_next();
     printf("Row 3 | ");
-    std::cin >> row3;
+    row3 = input_next();
     input.append(row1).append(row2).append(row3);
-    if (!set_lo.contains(input)) {
+    try {
+        if (!set_lo.contains(input)) throw (1);
+    }
+    catch (...) {
         printf("Wrong input format. See README.md in the repository for help.\n\n");
         return;
     }
 
     State* cur_state = hash_check_lo(input);
     int total_steps = cur_state -> layer;
-    printf("\nFound a solution in %u step(s).\n\nSteps to solve:\nInitial position:\n", total_steps);
-    getch(); // Void a newline
+    if (!only_moves && !table) printf("\nFound a solution in %u step(s).\n\nSteps to solve:\nInitial position:\n", total_steps);
+    else printf("\nFound a solution in %u step(s).\n\nSteps to solve:\n", total_steps);
 
-    for (cur_state; cur_state -> layer != 0; cur_state = hash_check_lo(flipper_lo(cur_state -> str, cur_state -> last_step))) {
-        scout(cur_state -> str);
-        printf("Press ENTER to proceed to the next step.\n\n");
-        getch();
-        printf("Step %d/%d:\n", total_steps - cur_state -> layer + 1, total_steps);
-        step_to_text(cur_state -> last_step);
-        printf("Result:\n");
+    int step_table[9];
+    if (table) std::fill(step_table, step_table + 9, 0);
+
+    for (; cur_state -> layer != 0; cur_state = hash_check_lo(flipper_lo(cur_state -> str, cur_state -> last_step))) {
+        if (!table) {
+            if (!only_moves) scout(cur_state -> str);
+            if (!skip) {
+                printf("Press ENTER to proceed to the next step.\n\n");
+                getch();
+            }
+            printf("Step %d/%d:\n", total_steps - cur_state -> layer + 1, total_steps);
+            step_to_text(cur_state -> last_step);
+            if (!only_moves) printf("Result:\n");
+        } else step_table[cur_state -> last_step - 1]++;
     }
-    scout(cur_state -> str);
+
+    if (table) {
+        for (int i = 0; i < 9; i++) {
+            printf("%d" , step_table[i]);
+            if (i == 2 || i == 5 || i == 8) printf("\n");
+        }
+        printf("\nSolved!\n\n");
+        return;
+    }
+
+    if (!only_moves) scout(cur_state -> str);
     
     printf("Solved!\n\n");
     return;
 }
 
-void search_lor() { // 3 dependencies - hash_check_lor; flipper_lor_search; scout
+void search_lor() { // 4 dependencies - input_next; hash_check_lor; flipper_lor_search; scout
     std::string row1, row2, row3, input = "";
     printf("LOR solver mode.\nInput 3 rows:\nRow 1 | ");
-    std::cin >> row1;
+    row1 = input_next();
     printf("Row 2 | ");
-    std::cin >> row2;
+    row2 = input_next();
     printf("Row 3 | ");
-    std::cin >> row3;
+    row3 = input_next();
     input.append(row1).append(row2).append(row3);
-    if (!set_lor.contains(input)) {
+    try {
+        if (!set_lor.contains(input)) throw (1);
+    }
+    catch (...) {
         printf("Wrong input format. See README.md in the repository for help.\n\n");
         return;
     }
 
     State* cur_state = hash_check_lor(input);
     int total_steps = cur_state -> layer;
-    printf("\nFound a solution in %u step(s).\n\nSteps to solve:\nInitial position:\n", total_steps);
-    getch(); // Void a newline
+    if (!only_moves && !table) printf("\nFound a solution in %u step(s).\n\nSteps to solve:\nInitial position:\n", total_steps);
+    else printf("\nFound a solution in %u step(s).\n\nSteps to solve:\n", total_steps);
 
-    for (cur_state; cur_state -> layer != 0; cur_state = hash_check_lor(flipper_lor_search(cur_state -> str, cur_state -> last_step))) {
-        scout(cur_state -> str);
-        printf("Press ENTER to proceed to the next step.\n\n");
-        getch();
-        printf("Step %d/%d:\n", total_steps - cur_state -> layer + 1, total_steps);
-        step_to_text(cur_state -> last_step);
-        printf("Result:\n");
+    int step_table[9];
+    if (table) std::fill(step_table, step_table + 9, 0);
+
+    for (; cur_state -> layer != 0; cur_state = hash_check_lor(flipper_lor_search(cur_state -> str, cur_state -> last_step))) {
+        if (!table) {
+            if (!only_moves) scout(cur_state -> str);
+            if (!skip) {
+                printf("Press ENTER to proceed to the next step.\n\n");
+                getch();
+            }
+            printf("Step %d/%d:\n", total_steps - cur_state -> layer + 1, total_steps);
+            step_to_text(cur_state -> last_step);
+            if (!only_moves) printf("Result:\n");
+        } else step_table[cur_state -> last_step - 1]++;
     }
-    scout(cur_state -> str);
+
+    if (table) {
+        for (int i = 0; i < 9; i++) {
+            printf("%d" , step_table[i]);
+            if (i == 2 || i == 5 || i == 8) printf("\n");
+        }
+        printf("\nSolved!\n\n");
+        return;
+    }
+
+    if (!only_moves) scout(cur_state -> str);
     
     printf("Solved!\n\n");
     return;
@@ -484,13 +591,26 @@ void search_lor() { // 3 dependencies - hash_check_lor; flipper_lor_search; scou
 
 // Main
 
-int main() {
+int main(int argc, char* argv[]) {
+    if (argc > 1 && std::string(argv[1]) == "no-cfg") yes_cfg = false;
+    if (yes_cfg) config_init();
+    else {
+        skip = false; // Set default values
+        only_moves = false;
+        table = false;
+        printf("no-cfg flag detected. Initializing with default config.\n\n");
+    }
+
     std::fill(hash_table_lo, hash_table_lo + NTABLE_LO, nullptr);
     printf("LO initialized...\n");
     build_lo("OOOOOOOOO", 0, 10);
-    if (set_lo.size() != 512) {
-        printf("Unexpected error occurred: expected 512 iterations; found %lu. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", set_lo.size());
-        getch(); // Void a newline
+    try {
+        if (set_lo.size() != 512) {
+            throw set_lo.size();
+        }
+    }
+    catch (int e) {
+        printf("Unexpected error occurred: expected 512 iterations; found %d. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", e);
         getch();
         exit(0);
     }
@@ -499,9 +619,13 @@ int main() {
     std::fill(hash_table_lor, hash_table_lor + NTABLE_LO, nullptr);
     printf("\nLOR initialized...\n");
     build_lor("OOOOOOOOO", 0, 10);
-    if (set_lor.size() != 19683) {
-        printf("Unexpected error occurred: expected 19683 iterations; found %lu. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", set_lor.size());
-        getch(); // Void a newline
+    try {
+        if (set_lor.size() != 19683) {
+            throw set_lor.size();
+        }
+    }
+    catch (int e) {
+        printf("Unexpected error occurred: expected 19683 iterations; found %d. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", e);
         getch();
         exit(0);
     }
@@ -535,10 +659,14 @@ int main() {
 
     // Main input loop
     bool breaker = false;
+    bool no_guide = false;
     while (!breaker) {
-        printf("Input a command (lo, lor, config, exit)\n>>> ");
-        std::string input;
-        std::cin >> input;
+        if (no_guide) std::cout << "\n[" << last_input << "] >>> ";
+        else std::cout << "Input a command (lo, lor, config, exit)\n[" << last_input << "] >>> ";;
+
+        no_guide = false;
+        std::string input = input_next();
+
         if (input == "exit") {
             breaker = true;
         } else if (input == "lo") {
@@ -546,12 +674,19 @@ int main() {
         } else if (input == "lor") {
             search_lor();
         } else if (input == "config") {
-            //config();
-        }
+            config();
+        } else no_guide = true;
     }
 
-    // i'm not memory leaking y'alls asses dw
-    printf("\nDeallocating used memory...\n");
+    if (yes_cfg) {
+        printf("\nSaving config settings...\n");
+        std::ofstream out("lo.cfg");
+        out << skip << '\n' << only_moves << '\n' << table;
+        out.close();
+        printf("Settings successfully saved.\n");
+    }
+
+    printf("\nDeallocating used memory...\n"); // i'm not memory leaking y'alls asses dw
     for (State* i : hash_table_lo) {
         while (i != nullptr) {
             State* next_state = i -> next;
@@ -567,7 +702,6 @@ int main() {
         }
     }
     printf("Memory successfully deallocated.\n\nPress ENTER to close.");
-    getch(); // Void a newline
     getch();
     return 0;
 }
