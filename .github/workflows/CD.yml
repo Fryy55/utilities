@@ -1,0 +1,22 @@
+name: Continuous Deployment
+
+on:
+  workflow_call
+
+jobs:
+  draft:
+    name: Draft a release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Draft Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          body: |
+            TODO before publishing:
+             - mark if pre-release
+             - add changelog
+             - remove this
+          draft: true
+          files: solver.exe
