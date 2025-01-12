@@ -339,7 +339,7 @@ void parse(std::string unparsed_input) { // No dependencies
     for (char i : unparsed_input) {
         if (i != ' ') temp_str += i;
         else {
-            parsed_input_deq.push_back(temp_str);
+            if (temp_str != "") parsed_input_deq.push_back(temp_str);
             temp_str = "";
         }
     }
