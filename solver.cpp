@@ -482,8 +482,27 @@ void config() { // 1 dependency: input_next
     printf("\nSuccessfully updated config.\n\n");
 }
 
+void search_parse(std::string &str) { // No dependencies
+    for (int i = 0; i < str.size(); i++) switch (str[i]) {
+    case 'x':
+        str[i] = 'X';
+        break;
+    case 'o':
+        str[i] = 'O';
+        break;
+    case 'r':
+        str[i] = 'R';
+        break;
+    case 'G':
+        str[i] = 'G';
+        break;
+    }
+
+    return;
+}
+
 // Search functions
-void search_lo() { // 4 dependencies - input_next; hash_check_lo; flipper_lo; scout
+void search_lo() { // 4 dependencies - input_next; search_parse; hash_check_lo; flipper_lo; scout
     std::string row1, row2, row3, input = "";
     printf("LO solver mode.\nInput 3 rows:\nRow 1 | ");
     row1 = input_next();
@@ -492,6 +511,7 @@ void search_lo() { // 4 dependencies - input_next; hash_check_lo; flipper_lo; sc
     printf("Row 3 | ");
     row3 = input_next();
     input.append(row1).append(row2).append(row3);
+    search_parse(input);
     try {
         if (!set_lo.contains(input)) throw (1);
     }
@@ -536,7 +556,7 @@ void search_lo() { // 4 dependencies - input_next; hash_check_lo; flipper_lo; sc
     return;
 }
 
-void search_lor() { // 4 dependencies - input_next; hash_check_lor; flipper_lor_search; scout
+void search_lor() { // 4 dependencies - input_next; search_parse; hash_check_lor; flipper_lor_search; scout
     std::string row1, row2, row3, input = "";
     printf("LOR solver mode.\nInput 3 rows:\nRow 1 | ");
     row1 = input_next();
@@ -545,6 +565,7 @@ void search_lor() { // 4 dependencies - input_next; hash_check_lor; flipper_lor_
     printf("Row 3 | ");
     row3 = input_next();
     input.append(row1).append(row2).append(row3);
+    search_parse(input);
     try {
         if (!set_lor.contains(input)) throw (1);
     }
@@ -609,7 +630,7 @@ int main(int argc, char* argv[]) {
             throw set_lo.size();
         }
     }
-    catch (int e) {
+    catch (unsigned long long e) {
         printf("Unexpected error occurred: expected 512 iterations; found %d. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", e);
         getch();
         exit(0);
@@ -624,7 +645,7 @@ int main(int argc, char* argv[]) {
             throw set_lor.size();
         }
     }
-    catch (int e) {
+    catch (unsigned long long e) {
         printf("Unexpected error occurred: expected 19683 iterations; found %d. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", e);
         getch();
         exit(0);
