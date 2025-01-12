@@ -1,17 +1,21 @@
-name: C/C++ CI
+name: Continuous Integration
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
 jobs:
   build:
-
+    name: Build an executable
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Build solver.exe
-      run: g++ -g -o solver.exe solver.cpp -std=gnu++23
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Build solver.exe
+        run: g++ -g -o solver.exe solver.cpp -std=gnu++23
+
+  cd:
+    name: Run CD
+    needs: build
+    uses: Fryy55/utilities/.github/workflows/CD.yml@main
