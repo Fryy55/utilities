@@ -1,25 +1,9 @@
-name: Continuous Integration
+name: Continuous Deployment
 
 on:
-  push:
-    branches: main
-  pull_request:
-    branches: [ "main" ]
-
-permissions:
-  contents: write
+  workflow_call
 
 jobs:
-  build:
-    name: Build an executable
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        
-      - name: Build solver.exe
-        run: g++ -g -o solver.exe solver.cpp -std=gnu++23
-
   draft:
     name: Draft a release
     runs-on: ubuntu-latest
