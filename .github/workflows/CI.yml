@@ -20,4 +20,4 @@ jobs:
   cd:
     name: Run CD
     needs: build
-    uses: ./.github/workflows/CD.yml@main
+    uses: ./.github/workflows/CD.yml
