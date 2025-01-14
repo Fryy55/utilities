@@ -18,15 +18,13 @@ jobs:
         uses: actions/checkout@v4
         
       - name: Build solver.exe
-        run: |
-          g++ -g -o solver.exe solver.cpp -std=gnu++23
-          mv solver.exe bin/solver.exe
+        run: g++ -g -o solver.exe solver.cpp -std=gnu++23
         
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: artifacts
-          path: bin
+          path: ./solver.exe
     
   draft:
     name: Draft a release
@@ -49,4 +47,4 @@ jobs:
              - add changelog
              - remove this
           draft: true
-          files: bin/solver.exe
+          files: ./solver.exe
