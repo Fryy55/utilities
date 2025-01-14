@@ -27,8 +27,8 @@ jobs:
           path: ./solver.exe
     
   draft:
-    name: Draft a release
     needs: build
+    name: Draft a release
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
