@@ -20,7 +20,19 @@ jobs:
       - name: Build solver.exe
         run: g++ -g -o solver.exe solver.cpp -std=gnu++23
 
-  cd:
-    name: Run CD
-    needs: build
-    uses: ./.github/workflows/CD.yml
+  draft:
+    name: Draft a release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Draft Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          body: |
+            TODO before publishing:
+             - mark if pre-release
+             - add changelog
+             - remove this
+          draft: true
+          files: solver.exe
