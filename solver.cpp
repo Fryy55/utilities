@@ -632,7 +632,7 @@ int main(int argc, char* argv[]) {
         }
     }
     catch (unsigned long long e) {
-        printf("Unexpected error occurred: expected 512 iterations; found %d. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", e);
+        printf("Unexpected error occurred: expected 512 iterations; found %ull. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", e);
         getch();
         exit(0);
     }
@@ -647,7 +647,7 @@ int main(int argc, char* argv[]) {
         }
     }
     catch (unsigned long long e) {
-        printf("Unexpected error occurred: expected 19683 iterations; found %d. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", e);
+        printf("Unexpected error occurred: expected 19683 iterations; found %ull. Please report this issue via the repository's Issues tab.\n\nPress ENTER to close.", e);
         getch();
         exit(0);
     }
