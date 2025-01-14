@@ -11,8 +11,8 @@ permissions:
 
 jobs:
   build:
-    name: Build an executable
-    runs-on: ubuntu-latest
+    name: Build for Windows
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
