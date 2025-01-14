@@ -24,14 +24,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifacts
-          path: bin
+          path: /*.exe
     
   draft:
     name: Draft a release
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Download a single artifact
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: artifacts
