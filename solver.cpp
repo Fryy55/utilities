@@ -357,7 +357,6 @@ std::string input_next() { // 1 dependency: parse | Recursive
         std::getline(std::cin, raw_input);
         parse(raw_input);
         if (parsed_input_deq.empty()) return "";
-        return input_next();
     }
     last_input = next;
     return next;
@@ -623,7 +622,6 @@ int main(int argc, char* argv[]) {
         printf("no-cfg flag detected. Initializing with default config.\n\n");
     }
 
-    std::fill(hash_table_lo, hash_table_lo + NTABLE_LO, nullptr);
     printf("LO initialized...\n");
     build_lo("OOOOOOOOO", 0, 10);
     try {
@@ -638,7 +636,6 @@ int main(int argc, char* argv[]) {
     }
     printf("LO hash table successfully built.\n");
 
-    std::fill(hash_table_lor, hash_table_lor + NTABLE_LO, nullptr);
     printf("\nLOR initialized...\n");
     build_lor("OOOOOOOOO", 0, 10);
     try {
